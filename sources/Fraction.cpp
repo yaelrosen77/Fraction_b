@@ -6,16 +6,27 @@ Fraction :: Fraction(int nume, int deno){
     denominator_ = deno;
 }
 
-int const Fraction :: getNumerator(){
+int Fraction :: getNumerator(){
     return numerator_;
 }
 
-const int Fraction :: getDenominator(){
+int Fraction :: getDenominator(){
     return denominator_;
 }
 
+Fraction operator+ (const Fraction& fr1, const Fraction& fr2){
+    Fraction uno = fr1;
+    Fraction dos = fr2;
+    Fraction res(uno.getNumerator()+dos.getNumerator(),uno.getDenominator() + dos.getDenominator());
+}
 
-Fraction operator+(const Fraction& fr1, const Fraction& fr2){
-    Fraction res((fr1.getNumerator() + fr2.getNumerator()), (fr1.getDenominator() + fr2.getDenominator()));
-
+void Fraction :: reduct(){
+    int min = std::min(numerator_, denominator_);
+    int ans; 
+    for(int i=1; i<=min; i++){
+        if(numerator_%i == 0 && denominator_%i == 0)
+            ans = i;
+    }
+    numerator_ = numerator_ / ans;
+    denominator_ = denominator_ / ans;
 }
