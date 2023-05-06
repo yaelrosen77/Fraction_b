@@ -7,11 +7,13 @@ Fraction :: Fraction(int nume, int deno){
     reduct();
 }
 
-int Fraction :: getNumerator(){
+int Fraction :: setNumerator(int num){
+    numerator_ = num;
     return numerator_;
 }
 
-int Fraction :: getDenominator(){
+int Fraction :: setDenominator(int num){
+    denominator_ = num;
     return denominator_;
 }
 
@@ -65,8 +67,24 @@ void Fraction :: reduct(){
     }
 }
 
+Fraction cast_to_frac(const float& flo){
+    string str = to_string(flo);
+    Fraction clo(0,1);
+    Fraction dlo(0,1);
+    if (flo>=1){
+        clo.setNumerator((int)flo);
+    }
+    while ()
+    {
+        /* code */
+    }
+    
+}
+
+
+
 Fraction operator*(const float& flo,const Fraction& fr2){
-    int 
+    
 }
 
 

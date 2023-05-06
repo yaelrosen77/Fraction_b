@@ -10,8 +10,8 @@ namespace ariel {
 
     public:
         Fraction(int nume, int deno);
-        int getNumerator();
-        int getDenominator();
+        int setNumerator(int num);
+        int setDenominator(int num);
         Fraction operator+(const Fraction& fr1) const;
         Fraction operator/(const Fraction& fr1) const;
         Fraction operator*(const Fraction& fr1) const;
@@ -22,6 +22,11 @@ namespace ariel {
 
         void reduct();
 };
+
+Fraction cast_to_frac(const float& flo);
+
+
+
 
 }
 
