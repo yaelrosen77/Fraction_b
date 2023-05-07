@@ -68,17 +68,35 @@ void Fraction :: reduct(){
 }
 
 Fraction cast_to_frac(const float& flo){
-    string str = to_string(flo);
+    bool booli = false;
+    int nume = 0;
+    int counter = 0;
+    float cpy = flo;
+    if (flo<0){
+        booli = true;
+        cpy *= -1;
+    }
     Fraction clo(0,1);
     Fraction dlo(0,1);
-    if (flo>=1){
+    if (cpy>=1){
         clo.setNumerator((int)flo);
+        cpy = cpy - (int)cpy;
     }
-    while ()
-    {
-        /* code */
+    cpy*=10;
+    while (cpy>0){
+        nume *=10;
+        counter++;
+        nume += (int)cpy;
+        cpy = cpy - (int)cpy;
+        cpy*=10;
     }
-    
+    if (booli==true){
+        nume*= -1;
+    }
+    dlo.setDenominator(pow(10,counter));
+    dlo.setNumerator(nume);
+    Fraction res = clo +dlo;
+    return res;
 }
 
 

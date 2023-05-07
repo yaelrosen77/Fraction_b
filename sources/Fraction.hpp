@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 using namespace std;
 
 namespace ariel {
