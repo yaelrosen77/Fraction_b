@@ -7,16 +7,6 @@ Fraction :: Fraction(int nume, int deno){
     reduct();
 }
 
-int Fraction :: setNumerator(int num){
-    numerator_ = num;
-    return numerator_;
-}
-
-int Fraction :: setDenominator(int num){
-    denominator_ = num;
-    return denominator_;
-}
-
 Fraction Fraction:: operator*(const Fraction& fr1) const{
     Fraction otro = fr1;
     Fraction res(numerator_*otro.numerator_,denominator_*otro.denominator_);
@@ -81,20 +71,108 @@ Fraction ariel ::cast_to_frac(const float& flo){
     }
     int nume = (int)(cpy*1000);
     Fraction clo(num,1);
-    cout<<clo<<endl;
     Fraction dlo(nume,1000);
-    cout<<dlo<<endl;
     Fraction res = clo + dlo;
-    cout<<res<<endl;
     return res;
 }
 
 
-Fraction operator*(const float& flo,const Fraction& fr2){
-    return Fraction(0,1);
+Fraction ariel:: operator*(const float& flo,const Fraction& fr2){
+    Fraction casti = cast_to_frac(flo);
+    Fraction res = casti * fr2;
+    return res;
 }
 
+Fraction ariel:: operator+(const Fraction& fr2, const float& flo){
+    Fraction casti = cast_to_frac(flo);
+    Fraction res = casti + fr2;
+    return res;
+}
 
-//first mission is to take the float and turn it into a fraction by extracting its value and the other left value
-//later on take the new fraction and multiplying it by the other fraction with the regular function
-//
+Fraction Fraction:: operator-(const float& fr1){
+    Fraction flo = cast_to_frac(fr1);
+    Fraction res = *this - flo;
+    return res;
+}
+
+Fraction& Fraction :: operator++(){
+    numerator_ += denominator_;
+    reduct();
+    return *this;
+}           
+
+Fraction& Fraction :: operator--(){
+    numerator_ -= denominator_;
+    reduct();
+    return *this;
+}           
+        
+Fraction Fraction :: operator++(int){
+    Fraction tmp(numerator_,denominator_);
+   ++(*this);
+   return tmp;
+}        
+
+Fraction Fraction :: operator--(int){
+    Fraction tmp(numerator_,denominator_);
+    --(*this);
+   return tmp;
+} 
+
+bool ariel :: operator==(Fraction const& fr1, Fraction const& fr2){
+    if (fr1.numerator_ == fr2.numerator_ && fr1.denominator_ == fr2.denominator_){
+        return true;
+    }
+    return false;
+}
+
+bool Fraction :: operator>(const Fraction& fr1){
+    if (*this == fr1){
+        return false;
+    }
+    if (denominator_ == fr1.denominator_){
+        if (numerator_<fr1.numerator_){
+            return false;
+        }
+        return true;
+    }
+    if (denominator_>fr1.denominator_ && numerator_<fr1.numerator_){
+        return false;
+    }
+    if (denominator_<fr1.denominator_ && numerator_>fr1.numerator_){
+        return true;
+    }
+    int nume1 = numerator_*fr1.denominator_;
+    int nume2 = fr1.numerator_*denominator_;
+
+    if (nume2 > nume1){
+        return false;
+    }
+    return true;
+}
+
+bool Fraction :: operator<(const Fraction& fr1){
+    if (*this == fr1){
+        return false;
+    }
+    return !(*this>fr1);
+}
+
+bool Fraction :: operator>=(const Fraction& fr1){
+    if (*this == fr1 || *this>fr1){
+        return true;
+    }
+    return false;
+}
+
+bool Fraction :: operator<=(const Fraction& fr1){
+    if (*this == fr1 || *this<fr1){
+        return true;
+    }
+    return false;
+}
+
+bool Fraction :: operator>(const float& flo){
+    Fraction c = cast_to_frac(flo);
+    return (*this>c);
+}
