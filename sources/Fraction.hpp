@@ -2,6 +2,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cmath>
+#include <string.h>
 using namespace std;
 
 namespace ariel {
@@ -25,8 +26,6 @@ namespace ariel {
 };
 
 Fraction cast_to_frac(const float& flo);
-
-
 
 
 }

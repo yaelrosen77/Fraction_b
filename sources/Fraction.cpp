@@ -47,6 +47,12 @@ ostream& ariel::operator<<(ostream& os1, const Fraction& fr1){
 }
 
 void Fraction :: reduct(){
+    if (numerator_ ==0){
+        return;
+    }
+    if (denominator_ == 1 || numerator_ == 1){
+        return;
+    }
     int nume = abs(numerator_);
     int denom = abs(denominator_);
     int min = std::min(nume, denom);
@@ -67,42 +73,25 @@ void Fraction :: reduct(){
     }
 }
 
-Fraction cast_to_frac(const float& flo){
-    bool booli = false;
-    int nume = 0;
-    int counter = 0;
-    float cpy = flo;
-    if (flo<0){
-        booli = true;
-        cpy *= -1;
+Fraction ariel ::cast_to_frac(const float& flo){
+    int num = (int)flo;
+    float cpy = flo - (int)flo;
+    if (cpy<0){
+        cpy*=-1;
     }
-    Fraction clo(0,1);
-    Fraction dlo(0,1);
-    if (cpy>=1){
-        clo.setNumerator((int)flo);
-        cpy = cpy - (int)cpy;
-    }
-    cpy*=10;
-    while (cpy>0){
-        nume *=10;
-        counter++;
-        nume += (int)cpy;
-        cpy = cpy - (int)cpy;
-        cpy*=10;
-    }
-    if (booli==true){
-        nume*= -1;
-    }
-    dlo.setDenominator(pow(10,counter));
-    dlo.setNumerator(nume);
-    Fraction res = clo +dlo;
+    int nume = (int)(cpy*1000);
+    Fraction clo(num,1);
+    cout<<clo<<endl;
+    Fraction dlo(nume,1000);
+    cout<<dlo<<endl;
+    Fraction res = clo + dlo;
+    cout<<res<<endl;
     return res;
 }
 
 
-
 Fraction operator*(const float& flo,const Fraction& fr2){
-    
+    return Fraction(0,1);
 }
 
 

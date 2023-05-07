@@ -18,10 +18,12 @@ using namespace ariel;
 
 int main() {
     Fraction a(3,-4), b(34,-53);
-    cout << "a+b" << a+b << endl; 
-    cout << "a-b" << a-b << endl; 
-    cout << "a/b" << a/b << endl; 
-    cout << "a*b" << a*b << endl; 
+    // cout << "a+b" << a+b << endl; 
+    // cout << "a-b" << a-b << endl; 
+    // cout << "a/b" << a/b << endl; 
+    // cout << "a*b" << a*b << endl; 
+    Fraction db = cast_to_frac(0.46566000);
+    cout<< db<< endl;
     // cout << "2.3*b" << 2.3*b << endl; 
     // cout << "a+2.421" << a+2.421 << endl; 
     // Fraction c = a+b-1;
