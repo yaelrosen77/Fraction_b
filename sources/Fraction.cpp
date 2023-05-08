@@ -3,10 +3,14 @@ using namespace ariel;
 
 Fraction :: Fraction(int nume, int deno){
     if (deno==0){
-        __throw_invalid_argument("Division by zero");
+        throw invalid_argument("Division by zero");
     }
-    numerator_ = nume;
-    denominator_ = deno;
+    int sign =1;
+    if(deno < 0){
+        sign = -1;
+    }
+    numerator_ = sign *nume;
+    denominator_ = sign*deno;
     reduct();
 }
 
@@ -28,28 +32,67 @@ int Fraction:: getDenominator(){
 }
 
 Fraction Fraction:: operator*(const Fraction& fr1) const{
+    int max_int = numeric_limits<int>::max();
+    int min_int = numeric_limits<int>::min();
     Fraction otro = fr1;
+
+    long long numerator = static_cast<long long>(numerator_) * otro.numerator_;
+    long long denominator = static_cast<long long>(denominator_) * otro.denominator_;
+    
+    if (numerator > max_int || numerator < min_int || denominator > max_int || denominator < min_int) {
+        throw overflow_error("Overflow occurred during fraction multiplication");
+        exit(1);
+    }
     Fraction res(numerator_*otro.numerator_,denominator_*otro.denominator_);
     return res;
 }
 
 Fraction Fraction :: operator/(const Fraction& fr1) const{
+    int max_int = numeric_limits<int>::max();
+    int min_int = numeric_limits<int>::min();
     if (fr1.numerator_ == 0){
-        __throw_invalid_argument("Division by zero");
+        throw runtime_error("Division by zero");
     }
     Fraction otro = fr1;
+    long long numerator = static_cast<long long>(numerator_) * otro.denominator_;
+    long long denominator = static_cast<long long>(denominator_) * otro.numerator_;
+    
+    if (numerator > max_int || numerator < min_int || denominator > max_int || denominator < min_int) {
+        throw overflow_error("Overflow occurred during fraction division");
+        exit(1);
+    }
     Fraction res(numerator_*otro.denominator_,denominator_*otro.numerator_);
     return res;
 }
 
 Fraction Fraction :: operator+(const Fraction& fr1) const{
+    int max_int = numeric_limits<int>::max();
+    int min_int = numeric_limits<int>::min();
+
     Fraction otro = fr1;
+    long long numerator = (static_cast<long long>(numerator_) * otro.denominator_)+ (static_cast<long long> (otro.numerator_)*denominator_);
+    long long denominator = static_cast<long long>(denominator_) * otro.numerator_;
+
+    if (numerator > max_int || numerator < min_int || denominator > max_int || denominator < min_int) {
+        throw overflow_error("Overflow occurred during fraction addition");
+        exit(1);
+    }
     Fraction res((numerator_*otro.denominator_)+(otro.numerator_*denominator_),denominator_*otro.denominator_);
     return res;
 }
 
 Fraction Fraction :: operator-(const Fraction& fr1) const{
+    int max_int = numeric_limits<int>::max();
+    int min_int = numeric_limits<int>::min();
+
     Fraction otro = fr1;
+    long long numerator = (static_cast<long long>(numerator_) * otro.denominator_) - (static_cast<long long> (otro.numerator_)*denominator_);
+    long long denominator = static_cast<long long>(denominator_)* otro.numerator_;
+    if (numerator > max_int || numerator < min_int || denominator > max_int || denominator < min_int) {
+        throw overflow_error("Overflow occurred during fraction substraction");
+        exit(1);
+    }
+    
     Fraction res((numerator_*otro.denominator_)-(otro.numerator_*denominator_),denominator_*otro.denominator_);
     return res;
 }
@@ -59,6 +102,10 @@ ostream& ariel::operator<<(ostream& os1, const Fraction& fr1){
 }
 
 void Fraction :: reduct(){
+    if (numerator_ == denominator_){
+        numerator_ = 1;
+        denominator_ = 1;
+    }
     if (numerator_ ==0){
         return;
     }
@@ -106,7 +153,7 @@ Fraction Fraction:: operator*(const float& flo) const {
 Fraction Fraction:: operator/(const float& flo) const{
     Fraction casti(flo);
     if (casti.numerator_ == 0){
-        __throw_invalid_argument("Division by zero");
+        throw runtime_error("Division by zero");
     }
     Fraction res = *this / casti;
     return res;
@@ -143,34 +190,56 @@ Fraction Fraction :: operator--(int){
 } 
 
 bool Fraction:: operator==(const Fraction& fr1) const{
+    if (numerator_==fr1.numerator_*(-1)&& denominator_ == fr1.denominator_*(-1))
+        return true;
     if (numerator_==fr1.numerator_ && denominator_== fr1.denominator_)
+        return true;
+    if (numerator_ == 0 && fr1.numerator_ == 0)
+        return true;
+    Fraction tmp = fr1;
+    tmp.reduct(); 
+    if (tmp.numerator_ == numerator_ && tmp.denominator_==denominator_)
         return true;
     return false;
 }
 
 bool Fraction :: operator>(const Fraction& fr1)const {
-    if (*this == fr1){
+    bool neg = false;
+    Fraction tmp1 = *this;
+    Fraction tmp2 = fr1;
+    tmp1.reduct();
+    tmp2.reduct();
+    if (tmp1 == tmp2)
         return false;
+    if (tmp1.numerator_<=0 && tmp2.numerator_>0)
+        return false;
+    if (tmp1.numerator_>0 && tmp2.numerator_<=0)
+        return true;
+    if (tmp1.numerator_<0 && tmp2.numerator_<0){
+        neg = true;
+        tmp1 = tmp1*(-1);
+        tmp2 = tmp2*(-1);
     }
-    if (denominator_ == fr1.denominator_){
-        if (numerator_<fr1.numerator_){
-            return false;
+
+    if (tmp1.denominator_ == tmp2.denominator_){
+        if (tmp1.numerator_<tmp2.numerator_){
+            return (neg==true ? true : false);
         }
-        return true;
+        return (neg==true ? false : true);
     }
-    if (denominator_>fr1.denominator_ && numerator_<fr1.numerator_){
-        return false;
+    if (tmp1.denominator_>tmp2.denominator_ && tmp1.numerator_<tmp2.numerator_){
+        return (neg==true ? true : false);
     }
-    if (denominator_<fr1.denominator_ && numerator_>fr1.numerator_){
-        return true;
+    if (tmp1.denominator_<tmp2.denominator_ && tmp1.numerator_>tmp2.numerator_){
+        return (neg==true ? false : true);
     }
-    int nume1 = numerator_*fr1.denominator_;
-    int nume2 = fr1.numerator_*denominator_;
+    int nume1 = tmp1.numerator_*tmp2.denominator_;
+    int nume2 = tmp2.numerator_*tmp1.denominator_;
 
     if (nume2 > nume1){
-        return false;
+        return (neg==true ? true : false);
     }
-    return true;
+    return (neg==true ? false : true);
 }
 
 bool Fraction :: operator<(const Fraction& fr1)const {
@@ -224,7 +293,10 @@ Fraction ariel::operator*(const float& flo, const Fraction& fr2){
 
 Fraction ariel::operator/(const float& flo, const Fraction& fr2){
     if (fr2.numerator_ == 0){
-        __throw_invalid_argument("Division by zero");
+        throw runtime_error("Division by zero");
+    }
+    if (flo == 0){
+        return Fraction(flo);
     }
     Fraction res = fr2/flo;
     int nume = res.numerator_;
@@ -252,40 +324,116 @@ bool ariel::operator==(const float& flo, const Fraction& fr1){
 }
 
 istream& ariel :: operator>> (istream& in1,Fraction& fr1){
-    int nume, denom;    
-    string input; 
+    int nume, denom;
+    streampos currentPosition = in1.tellg();
+    string input;
     string num = "";
     string deno = "";
-    getline(in1,input);
-    bool sign = false;
-    if ((input.find(".")== input.npos) && (input.find(" ") == input.npos) && (input.find("/") == input.npos) && (input.find(",") == input.npos)){
-        __throw_bad_function_call();
+    getline(in1, input);
+    bool delimiter = false;
+
+    if ((input.find(" ") == input.npos) && (input.find("/") == input.npos) && (input.find(",") == input.npos)) {
+        throw runtime_error("Invalid input");
         exit(1);
     }
-    for (char c : input){
-        if (sign == false){
-            if (isdigit(c))
-                num+=c;
+    if (input.find(".") != input.npos){
+        throw runtime_error("Invalid input");
+        exit(1);
+    }
+
+    for (char c : input) {
+        if (delimiter == false) {
+            if (isdigit(c) || c == '-') {
+                num += c;
+            }
             else {
-                if (c!= '.' && c!= ' ' && c!= '/' && c!= ','){
-                    __throw_invalid_argument("Cannot create a fraction with undefined chars");
+                if (c != '.' && c != ' ' && c != '/' && c != ',') {
+                    throw runtime_error("Cannot create a fraction with undefined chars");
                     exit(1);
                 }
-                sign = true;
+
+                delimiter = true;
             }
         }
         else {
-            if (isdigit(c))
-                deno+=c;
-            else{
-                __throw_invalid_argument("Cannot create a fraction with undefined chars");
-                exit(1);
+            if (isdigit(c) || c == '-') {
+                deno += c;
+            }
+            else {
+                if (c == '.' || c == ' ' || c == '/' || c == ',') {
+                    int sizeofin = (num.size() + deno.size()+2);
+                    in1.seekg(currentPosition + static_cast<streampos>(sizeofin));
+                    nume = stoi(num);
+                    denom = stoi(deno);
+                    fr1.numerator_ = nume;
+                    fr1.denominator_ = denom;
+                    if (fr1.denominator_<0){
+                        fr1.denominator_= fr1.denominator_*(-1);
+                        fr1.numerator_= fr1.numerator_*(-1);}
+                    return in1;
+                }
+                else {
+                    throw invalid_argument("Cannot create a fraction with undefined chars");
+                    exit(1);
+                }
             }
         }
     }
     nume = stoi(num);
     denom = stoi(deno);
+    if (denom == 0){
+        throw runtime_error("Cannot create a fraction with a zero denominator");
+        exit(1);
+    }
+
     fr1.numerator_ = nume;
-    fr1.denominator_= denom;
+    fr1.denominator_ = denom;
+    if (fr1.denominator_<0){
+        fr1.denominator_= fr1.denominator_*(-1);
+        fr1.numerator_= fr1.numerator_*(-1);
+    }
     return in1;
 }
+
+
+
+    // if ((input.find(".")== input.npos) && (input.find(" ") == input.npos) && (input.find("/") == input.npos) && (input.find(",") == input.npos)){
+    //     throw invalid_argument("Invalid input");
+    //     exit(1);
+    // }
+    // for (char c : input){
+    //     if (delimiter == false){
+    //         if (isdigit(c) || c == '-')
+    //             num+=c;
+    //         else {
+    //             if (c!= '.' && c!= ' ' && c!= '/' && c!= ','){
+    //                 throw invalid_argument("Cannot create a fraction with undefined chars");
+    //                 exit(1);
+    //             }
+    //             delimiter = true;
+    //         }
+    //     }
+    //     else {
+    //         if (isdigit(c) || c == '-')
+    //             deno+=c;
+    //         else{
+    //             if (c=='.' || c==' ' || c== '/' || c==','){
+    //                 int sizeofin = (num.size()+ deno.size() +1);
+    //                 in1.seekg(currentPosition + static_cast <streampos>(sizeofin));
+    //                 nume = stoi(num);
+    //                 denom = stoi(deno);
+    //                 fr1.numerator_ = nume;
+    //                 fr1.denominator_= denom;
+    //                 return in1;
+    //             }
+    //             else {
+    //                 throw invalid_argument("Cannot create a fraction with undefined chars");
+    //                 exit(1);}
+    //         }
+    //     }
+    // }
+    // nume = stoi(num);
+    // denom = stoi(deno);
+    // fr1.numerator_ = nume;
+    // fr1.denominator_= denom;
+    // return in1;

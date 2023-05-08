@@ -4,6 +4,7 @@
 #include <cmath>
 #include <string.h>
 #include <cctype>
+#include <limits>
 using namespace std;
 
 namespace ariel {
