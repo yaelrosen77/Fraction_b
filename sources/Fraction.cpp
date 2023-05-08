@@ -2,9 +2,24 @@
 using namespace ariel;
 
 Fraction :: Fraction(int nume, int deno){
+    if (deno==0){
+        __throw_invalid_argument("Division by zero");
+    }
     numerator_ = nume;
     denominator_ = deno;
     reduct();
+}
+
+Fraction :: Fraction(const float& val){
+    *this = cast_to_frac(val);
+}
+
+int Fraction:: getNumerator(){
+    return numerator_;
+}
+
+int Fraction:: getDenominator(){
+    return denominator_;
 }
 
 Fraction Fraction:: operator*(const Fraction& fr1) const{
@@ -14,6 +29,9 @@ Fraction Fraction:: operator*(const Fraction& fr1) const{
 }
 
 Fraction Fraction :: operator/(const Fraction& fr1) const{
+    if (fr1.numerator_ == 0){
+        __throw_invalid_argument("Division by zero");
+    }
     Fraction otro = fr1;
     Fraction res(numerator_*otro.denominator_,denominator_*otro.numerator_);
     return res;
@@ -30,7 +48,6 @@ Fraction Fraction :: operator-(const Fraction& fr1) const{
     Fraction res((numerator_*otro.denominator_)-(otro.numerator_*denominator_),denominator_*otro.denominator_);
     return res;
 }
-
 
 ostream& ariel::operator<<(ostream& os1, const Fraction& fr1){
     return os1 << fr1.numerator_ << "/" << fr1.denominator_<<endl;
@@ -64,33 +81,34 @@ void Fraction :: reduct(){
 }
 
 Fraction ariel ::cast_to_frac(const float& flo){
-    int num = (int)flo;
-    float cpy = flo - (int)flo;
-    if (cpy<0){
-        cpy*=-1;
+    int nume = flo*1000;
+    Fraction res(nume,1000);
+    return res;
+}
+
+Fraction Fraction:: operator+(const float& flo) const{
+    Fraction casti(flo);
+    Fraction res = casti + *this;
+    return res;
+}
+
+Fraction Fraction:: operator*(const float& flo) const {
+    Fraction casti(flo);
+    Fraction res = casti * *this;
+    return res;
+}
+
+Fraction Fraction:: operator/(const float& flo) const{
+    Fraction casti(flo);
+    if (casti.numerator_ == 0){
+        __throw_invalid_argument("Division by zero");
     }
-    int nume = (int)(cpy*1000);
-    Fraction clo(num,1);
-    Fraction dlo(nume,1000);
-    Fraction res = clo + dlo;
+    Fraction res = *this / casti;
     return res;
 }
 
-
-Fraction ariel:: operator*(const float& flo,const Fraction& fr2){
-    Fraction casti = cast_to_frac(flo);
-    Fraction res = casti * fr2;
-    return res;
-}
-
-Fraction ariel:: operator+(const Fraction& fr2, const float& flo){
-    Fraction casti = cast_to_frac(flo);
-    Fraction res = casti + fr2;
-    return res;
-}
-
-Fraction Fraction:: operator-(const float& fr1){
-    Fraction flo = cast_to_frac(fr1);
+Fraction Fraction:: operator-(const float& fr1) const{
+    Fraction flo(fr1);
     Fraction res = *this - flo;
     return res;
 }
@@ -119,14 +137,13 @@ Fraction Fraction :: operator--(int){
    return tmp;
 } 
 
-bool ariel :: operator==(Fraction const& fr1, Fraction const& fr2){
-    if (fr1.numerator_ == fr2.numerator_ && fr1.denominator_ == fr2.denominator_){
+bool Fraction:: operator==(const Fraction& fr1) const{
+    if (numerator_==fr1.numerator_ && denominator_== fr1.denominator_)
         return true;
-    }
     return false;
 }
 
-bool Fraction :: operator>(const Fraction& fr1){
+bool Fraction :: operator>(const Fraction& fr1)const {
     if (*this == fr1){
         return false;
     }
@@ -151,28 +168,106 @@ bool Fraction :: operator>(const Fraction& fr1){
     return true;
 }
 
-bool Fraction :: operator<(const Fraction& fr1){
+bool Fraction :: operator<(const Fraction& fr1)const {
     if (*this == fr1){
         return false;
     }
     return !(*this>fr1);
 }
 
-bool Fraction :: operator>=(const Fraction& fr1){
+bool Fraction :: operator>=(const Fraction& fr1)const{
     if (*this == fr1 || *this>fr1){
         return true;
     }
     return false;
 }
 
-bool Fraction :: operator<=(const Fraction& fr1){
+bool Fraction :: operator<=(const Fraction& fr1) const{
     if (*this == fr1 || *this<fr1){
         return true;
     }
     return false;
 }
 
-bool Fraction :: operator>(const float& flo){
-    Fraction c = cast_to_frac(flo);
+bool Fraction :: operator>(const float& flo)const{
+    Fraction c(flo);
     return (*this>c);
+}
+
+bool Fraction :: operator<(const float& flo)const{
+    Fraction c(flo);
+    return *this<c;
+}
+
+bool Fraction :: operator==(const float& flo) const{
+    Fraction fl1(flo);
+    return *this==fl1;
+}
+
+Fraction ariel::operator+(const float& flo, const Fraction& fr2){
+    return fr2+flo;
+}
+
+Fraction ariel::operator-(const float& flo, const Fraction& fr2){
+    Fraction res = -1*(fr2-flo);
+    return res;
+}
+
+Fraction ariel::operator*(const float& flo, const Fraction& fr2){
+    return fr2*flo;
+}
+
+Fraction ariel::operator/(const float& flo, const Fraction& fr2){
+    if (fr2.numerator_ == 0){
+        __throw_invalid_argument("Division by zero");
+    }
+    Fraction res = fr2/flo;
+    int nume = res.numerator_;
+    int denom = res.denominator_;
+    res.numerator_ = denom;
+    res.denominator_ = nume;
+    return res;
+}
+
+bool ariel::operator>(const float& flo, const Fraction& fr2){
+    return Fraction(flo)>fr2;
+}
+bool ariel::operator<(const float& flo, const Fraction& fr2){
+    return Fraction(flo)<fr2;
+}
+bool ariel::operator>=(const float& flo, const Fraction& fr2){
+    return Fraction(flo)>=fr2;
+}
+bool ariel::operator<=(const float& flo, const Fraction& fr2){
+    return Fraction(flo)<=fr2;
+}
+
+bool ariel::operator==(const float& flo, const Fraction& fr1){
+    return fr1==flo;
+}
+
+istream& ariel :: operator>> (istream& in1,Fraction& fr1){
+    int nume, denom;    
+    string input; 
+    string num = "";
+    string deno = "";
+    getline(in1,input);
+    bool sign = false;
+    if ((input.find(".")== input.npos) && (input.find(" ") == input.npos) && (input.find("/") == input.npos) && (input.find(",") == input.npos)){
+        __throw_bad_function_call();
+        exit(1);
+    }
+    for (char c : input){
+        if (sign == false){
+            if (isdigit(c))
+                num+=c;
+            else {
+                if (c!= '.' && c!= ' ' && c!= '/' && c!= ','){
+                    __throw_invalid_argument("Cannot create a fraction with undefined chars");
+                    exit(1);
+                }
+            }
+        }
+    }
+    return in1;
 }
