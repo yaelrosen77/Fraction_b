@@ -13,6 +13,7 @@ namespace ariel {
 
     public:
         Fraction(int nume, int deno);
+        Fraction();
         Fraction(const float& val);
         int getNumerator();
         int getDenominator();

@@ -14,6 +14,11 @@ Fraction :: Fraction(const float& val){
     *this = cast_to_frac(val);
 }
 
+Fraction :: Fraction(){
+    numerator_ = 0;
+    denominator_ =1;
+}
+
 int Fraction:: getNumerator(){
     return numerator_;
 }
@@ -50,7 +55,7 @@ Fraction Fraction :: operator-(const Fraction& fr1) const{
 }
 
 ostream& ariel::operator<<(ostream& os1, const Fraction& fr1){
-    return os1 << fr1.numerator_ << "/" << fr1.denominator_<<endl;
+    return os1 << fr1.numerator_ << "/" << fr1.denominator_;
 }
 
 void Fraction :: reduct(){
@@ -266,8 +271,21 @@ istream& ariel :: operator>> (istream& in1,Fraction& fr1){
                     __throw_invalid_argument("Cannot create a fraction with undefined chars");
                     exit(1);
                 }
+                sign = true;
+            }
+        }
+        else {
+            if (isdigit(c))
+                deno+=c;
+            else{
+                __throw_invalid_argument("Cannot create a fraction with undefined chars");
+                exit(1);
             }
         }
     }
+    nume = stoi(num);
+    denom = stoi(deno);
+    fr1.numerator_ = nume;
+    fr1.denominator_= denom;
     return in1;
 }
