@@ -1,7 +1,6 @@
 #include "Fraction.hpp"
 using namespace ariel;
-int max_int = numeric_limits<int>::max();
-int min_int = numeric_limits<int>::min();
+
 
 /*A parameterized constructor that takes two arguments- a numerator and denominator.
 Throws exception if getting illegal denominator.
@@ -19,16 +18,9 @@ Fraction :: Fraction(int nume, int deno){
 does not throw any arithmetic exception and consider the zero as 0/1000;
 creates a reducted fraction that uses up to 3 digits beyond the desimal point for acuracy.
 */
-Fraction :: Fraction(const float& val){
+Fraction :: Fraction(double val){
     *this = cast_to_frac(val);
 }
-
-/*Defualt constructor*/
-Fraction :: Fraction(){
-    numerator_ = 0;
-    denominator_ =1;
-}
-
 int Fraction:: getNumerator(){
     return numerator_;
 }
@@ -48,7 +40,7 @@ it changes the fraction to be also a reducted one.*/
 void Fraction :: setDenominator(int a){
     if (a==0){
         throw invalid_argument("Arithmetic exception");
-        exit(1);
+        
     }
     denominator_= a;
     reduct();
@@ -57,98 +49,119 @@ void Fraction :: setDenominator(int a){
 /*Reduction to all types of legal fractions using the GCD Eucldian algorithm.
 a negative fraction is updated to be as a form of -a/b if given as a/-b
 */
-void Fraction :: reduct(){
-    if (denominator_<0){
-        numerator_*=-1;
-        denominator_*=-1;
+void Fraction::reduct() {
+    if (denominator_ < 0) {
+        numerator_ *= -1;
+        denominator_ *= -1;
     }
-    if (numerator_ == denominator_){
+    
+    if (numerator_ == denominator_) {
         numerator_ = 1;
         denominator_ = 1;
-    }
-    if (numerator_ ==0){
-        if (denominator_<0)
-            denominator_ = denominator_ *-1;
         return;
     }
-    if (denominator_ == 1 || numerator_ == 1){
+    
+    if (numerator_ == 0) {
+        if (denominator_ < 0)
+            denominator_ *= -1;
         return;
     }
-    int nume = abs(numerator_);
-    int denom = abs(denominator_);
-    int min = std::min(nume, denom);
-    int ans; 
-    for(int i=1; i<=min; i++){
-        if(numerator_%i == 0 && denominator_%i == 0)
-            ans = i;
+    
+    if (denominator_ == 1 || numerator_ == 1) {
+        return;
     }
-    numerator_ = numerator_ / ans;
-    denominator_ = denominator_ / ans;
+    
+    int a = abs(numerator_);
+    int b = abs(denominator_);
+    
+    // Calculate the GCD using the Euclidean algorithm
+    while (b != 0) {
+        int temp = b;
+        b = a % b;
+        a = temp;
+    }
+    int gcd = a;
+    
+    numerator_ /= gcd;
+    denominator_ /= gcd;
 }
 
 /*Multiplication between two fractions.
-throws overflow exception in cases that result exceed the maximum/minimum integer type
+throws overflow exception in cases that result exceeds the maximum/minimum integer type
 returns the result*/
 Fraction Fraction:: operator*(const Fraction& fr1) const{
     Fraction otro = fr1;
     long long numerator = static_cast<long long>(numerator_) * otro.numerator_;
     long long denominator = static_cast<long long>(denominator_) * otro.denominator_;
-    if (numerator > max_int || numerator < min_int || denominator > max_int || denominator < min_int) {
+    if (numerator > numeric_limits<int>::max() || numerator < numeric_limits<int>::min() ||
+        denominator > numeric_limits<int>::max() || denominator < numeric_limits<int>::min()) {
         throw overflow_error("Overflow occurred during fraction multiplication");
-        exit(1);
     }
-    Fraction res(numerator_*otro.numerator_,denominator_*otro.denominator_);
+    Fraction res(numerator, denominator);
     return res;
 }
 
-/*Division betweem two fractions.
-throws exception if the */
-Fraction Fraction :: operator/(const Fraction& fr1) const{
-    if (fr1.numerator_ == 0){
+/*Division between two fractions.
+throws exception if the other numerator equals to zero or if there is an overflow.
+returns the result*/
+Fraction Fraction::operator/(const Fraction& fr1) const {
+    if (fr1.numerator_ == 0) {
         throw runtime_error("Division by zero");
     }
     Fraction otro = fr1;
     long long numerator = static_cast<long long>(numerator_) * otro.denominator_;
     long long denominator = static_cast<long long>(denominator_) * otro.numerator_;
-    
-    if (numerator > max_int || numerator < min_int || denominator > max_int || denominator < min_int) {
+
+    if (numerator > numeric_limits<int>::max() || numerator < numeric_limits<int>::min() ||
+        denominator > numeric_limits<int>::max() || denominator < numeric_limits<int>::min()) {
         throw overflow_error("Overflow occurred during fraction division");
-        exit(1);
     }
-    Fraction res(numerator_*otro.denominator_,denominator_*otro.numerator_);
+    Fraction res(numerator, denominator);
     return res;
 }
 
-Fraction Fraction :: operator+(const Fraction& fr1) const{
+/*Addition between two fractions. 
+throws exception in case of overflow.
+returns the result*/
+Fraction Fraction::operator+(const Fraction& fr1) const {
     Fraction otro = fr1;
-    long long numerator = (static_cast<long long>(numerator_) * otro.denominator_)+ (static_cast<long long> (otro.numerator_)*denominator_);
-    long long denominator = static_cast<long long>(denominator_) * otro.numerator_;
+    long long numerator = static_cast<long long>(numerator_) * otro.denominator_ +
+                         static_cast<long long>(otro.numerator_) * denominator_;
+    long long denominator = static_cast<long long>(denominator_) * otro.denominator_;
 
-    if (numerator > max_int || numerator < min_int || denominator > max_int || denominator < min_int) {
+    if (numerator > numeric_limits<int>::max() || numerator < numeric_limits<int>::min() ||
+        denominator > numeric_limits<int>::max() || denominator < numeric_limits<int>::min()) {
         throw overflow_error("Overflow occurred during fraction addition");
-        exit(1);
     }
-    Fraction res((numerator_*otro.denominator_)+(otro.numerator_*denominator_),denominator_*otro.denominator_);
+    Fraction res(numerator, denominator);
     return res;
 }
 
-Fraction Fraction :: operator-(const Fraction& fr1) const{
+/*Substraction between two fractions.
+throws exception in case of an overflow.
+return the result*/
+Fraction Fraction::operator-(const Fraction& fr1) const {
     Fraction otro = fr1;
-    long long numerator = (static_cast<long long>(numerator_) * otro.denominator_) - (static_cast<long long> (otro.numerator_)*denominator_);
-    long long denominator = static_cast<long long>(denominator_)* otro.numerator_;
-    if (numerator > max_int || numerator < min_int || denominator > max_int || denominator < min_int) {
-        throw overflow_error("Overflow occurred during fraction substraction");
-        exit(1);
+    long long numerator = static_cast<long long>(numerator_) * otro.denominator_ -
+                         static_cast<long long>(otro.numerator_) * denominator_;
+    long long denominator = static_cast<long long>(denominator_) * otro.denominator_;
+
+    if (numerator > numeric_limits<int>::max() || numerator < numeric_limits<int>::min() ||
+        denominator > numeric_limits<int>::max() || denominator < numeric_limits<int>::min()) {
+        throw overflow_error("Overflow occurred during fraction subtraction");
     }
-    Fraction res((numerator_*otro.denominator_)-(otro.numerator_*denominator_),denominator_*otro.denominator_);
+    Fraction res(numerator, denominator);
     return res;
 }
-
+/*Receives two arguments- ostream pointer and fraction to print.
+cast to a form of "a/b".
+return the os stream back to user.*/
 ostream& ariel::operator<<(ostream& os1, const Fraction& fr1){
     return os1 << fr1.numerator_ << "/" << fr1.denominator_;
 }
-
-
+/*Casting a float type to a fraction. 
+accuracy of up to 3 points behind the decimal point.
+returns a reducted fraction*/
 Fraction ariel ::cast_to_frac(const float& flo){
     int nume = flo*1000;
     Fraction res(nume,1000);
@@ -166,7 +179,8 @@ Fraction Fraction:: operator*(const float& flo) const {
     Fraction res = casti * *this;
     return res;
 }
-
+/*Division by float.
+might throw an arithmetic exception with a zero argument.*/
 Fraction Fraction:: operator/(const float& flo) const{
     Fraction casti(flo);
     if (casti.numerator_ == 0){
@@ -205,7 +219,8 @@ Fraction Fraction :: operator--(int){
     --(*this);
    return tmp;
 } 
-
+/*Equality check with another fraction.
+considered equal fraction if and only if their reducted fractions are equal.*/
 bool Fraction:: operator==(const Fraction& fr1) const{
     if (numerator_==fr1.numerator_*(-1)&& denominator_ == fr1.denominator_*(-1))
         return true;
@@ -237,7 +252,6 @@ bool Fraction :: operator>(const Fraction& fr1)const {
         tmp1 = tmp1*(-1);
         tmp2 = tmp2*(-1);
     }
-
     if (tmp1.denominator_ == tmp2.denominator_){
         if (tmp1.numerator_<tmp2.numerator_){
             return (neg==true ? true : false);
@@ -339,7 +353,10 @@ bool ariel::operator<=(const float& flo, const Fraction& fr2){
 bool ariel::operator==(const float& flo, const Fraction& fr1){
     return fr1==flo;
 }
-
+/*Input stream into a fraction. 
+only takes a valid input to be 2 integers seperated by either '/',' '(whitespace), ','
+throws exception if not valid.
+after finish reading one fraction from input stream returns the stream back to user*/
 istream& ariel :: operator>> (istream& in1,Fraction& fr1){
     int nume, denom;
     streampos currentPosition = in1.tellg();
@@ -351,11 +368,11 @@ istream& ariel :: operator>> (istream& in1,Fraction& fr1){
 
     if ((input.find(" ") == input.npos) && (input.find("/") == input.npos) && (input.find(",") == input.npos)) {
         throw runtime_error("Invalid input");
-        exit(1);
+        
     }
     if (input.find(".") != input.npos){
         throw runtime_error("Invalid input");
-        exit(1);
+        
     }
 
     for (char c : input) {
@@ -366,7 +383,7 @@ istream& ariel :: operator>> (istream& in1,Fraction& fr1){
             else {
                 if (c != '.' && c != ' ' && c != '/' && c != ',') {
                     throw runtime_error("Cannot create a fraction with undefined chars");
-                    exit(1);
+                    
                 }
 
                 delimiter = true;
@@ -391,7 +408,7 @@ istream& ariel :: operator>> (istream& in1,Fraction& fr1){
                 }
                 else {
                     throw invalid_argument("Cannot create a fraction with undefined chars");
-                    exit(1);
+                    
                 }
             }
         }
@@ -400,7 +417,7 @@ istream& ariel :: operator>> (istream& in1,Fraction& fr1){
     denom = stoi(deno);
     if (denom == 0){
         throw runtime_error("Cannot create a fraction with a zero denominator");
-        exit(1);
+        
     }
 
     fr1.numerator_ = nume;

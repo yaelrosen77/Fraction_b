@@ -8,17 +8,14 @@
 using namespace std;
 
 namespace ariel {
-    // extern const int max_int;                                   //global variables to be used inside source code
-    // extern const int min_int;
-
     class Fraction{
         int numerator_;
         int denominator_;
+        void reduct();
 
     public:
-        Fraction(int nume, int deno);       
-        Fraction();
-        Fraction(const float& val);
+        Fraction(int nume =0, int deno=1);       
+        Fraction(double val);
         int getNumerator();
         int getDenominator();
         void setNumerator(int elm);
@@ -28,9 +25,9 @@ namespace ariel {
         Fraction operator*(const Fraction& fr1) const;
         Fraction operator-(const Fraction& fr1) const;
         Fraction operator-(const float& fr1) const;
-        Fraction operator*(const float& fr1) const; 
+        Fraction operator*(const float& flo) const; 
         Fraction operator/(const float& fr1) const;
-        Fraction operator+(const float& fr2) const;
+        Fraction operator+(const float& flo) const;
         Fraction& operator++();           // prefix increment operator
         Fraction& operator--();           
         Fraction operator++(int);         // postfix increment operator
@@ -54,8 +51,7 @@ namespace ariel {
         friend bool operator>=(const float& flo, const Fraction& fr2);
         friend bool operator<=(const float& flo, const Fraction& fr2);
         friend bool operator==(const float& flo, const Fraction& fr1);
-        friend istream& operator>> (istream& in,Fraction& fr11);
-        void reduct();
+        friend istream& operator>> (istream& in1,Fraction& fr11);
 };
 Fraction cast_to_frac(const float& flo);                    //A function that casts a float to a fraction
 

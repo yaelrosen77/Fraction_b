@@ -729,11 +729,12 @@ TEST_CASE("Fraction with largest possible numerator and/or denominator and overf
     CHECK_EQ(f3, Fraction(1, 1));
 
     // Test arithmetic with large numerator and/or denominator
+    printf("Error1\n");
     Fraction f4(max_int - 100, max_int);
-
+    printf("Error2\n");
     CHECK_THROWS_AS(f1 * f4, std::overflow_error);
     CHECK_THROWS_AS(f1 / f4, std::overflow_error);
-
+    printf("Error4\n");
     CHECK_THROWS_AS(f2 * f4, std::overflow_error);
     CHECK_THROWS_AS(f2 / f4, std::overflow_error); //
 
